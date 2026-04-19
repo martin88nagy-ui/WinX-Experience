@@ -1,2 +1,2 @@
 # WinX-Experience
-Windows tppek, trükkök
+Windows tippek, trükkök, hasznos applikációk
