@@ -1,22 +1,225 @@
+
 <!DOCTYPE html>
 <html lang="hu">
 <head>
 <meta charset="UTF-8">
-<title>WinX Web</title>
-<link rel="stylesheet" href="style.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WinX Web Experience</title>
+
+<style>
+body{
+margin:0;
+font-family:Segoe UI;
+background:linear-gradient(135deg,#0b0f1a,#050713);
+color:white;
+overflow-x:hidden;
+}
+
+header{
+padding:15px 20px;
+background:#0f172a;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+nav button{
+background:#1f2937;
+color:white;
+border:none;
+padding:10px;
+margin:5px;
+border-radius:8px;
+cursor:pointer;
+transition:.3s;
+}
+nav button:hover{background:#2563eb}
+
+.section{
+display:none;
+padding:20px;
+opacity:0;
+transform:translateY(10px);
+transition:.4s;
+}
+.section.active{
+display:block;
+opacity:1;
+transform:translateY(0);
+}
+
+.cards{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:15px;
+margin-top:20px;
+}
+
+.card{
+background:#111827;
+padding:15px;
+border-radius:12px;
+cursor:pointer;
+transition:.3s;
+position:relative;
+}
+
+.card:hover{
+transform:translateY(-6px);
+background:#1f2937;
+}
+
+.badge{
+background:#2563eb;
+padding:3px 8px;
+border-radius:6px;
+font-size:12px;
+cursor:pointer;
+}
+
+.highlight{
+background:yellow;
+color:black;
+}
+
+.heart{
+position:absolute;
+right:10px;
+top:10px;
+opacity:0;
+transform:scale(0);
+transition:.3s;
+color:red;
+}
+
+.heart.show{
+opacity:1;
+transform:scale(1.5);
+}
+
+.stats{
+margin-top:10px;
+opacity:.8;
+}
+
+</style>
 </head>
 <body>
 
+<header>
+<div>WinX Web XP</div>
 <nav>
-  <h1>WinX Web</h1>
+<button onclick="show('home')">Home</button>
+<button onclick="show('tips')">Tippek</button>
+<button onclick="show('apps')">Appok</button>
+<button onclick="show('stats')">Stats</button>
 </nav>
+</header>
 
-<div class="cards">
-  <a href="tips.html" class="card">Windows Tippek</a>
-  <a href="apps.html" class="card">Hasznos Appok</a>
-  <a href="performance.html" class="card">Teljesítmény</a>
-  <a href="security.html" class="card">Biztonság</a>
+<!-- HOME -->
+<div id="home" class="section active">
+<h1>WinX Experience</h1>
+<p>Interaktív Windows tippek, appok és XP rendszer.</p>
+
+<div class="stats">
+⭐ Kedvencek: <span id="favCount">0</span> | XP: <span id="xp">0</span>
 </div>
+</div>
+
+<!-- TIPS -->
+<div id="tips" class="section">
+<h2>Tippek kereséssel</h2>
+<input id="search" placeholder="Keresés..." oninput="renderTips()">
+<div id="tipsList" class="cards"></div>
+</div>
+
+<!-- APPS -->
+<div id="apps" class="section">
+<h2>Appok</h2>
+<div class="cards">
+<div class="card">PowerToys</div>
+<div class="card">ShareX</div>
+<div class="card">Everything</div>
+<div class="card">Notion</div>
+</div>
+</div>
+
+<!-- STATS -->
+<div id="stats" class="section">
+<h2>Statisztika</h2>
+<p>Kedvencek száma: <span id="favCount2">0</span></p>
+<p>XP szint: <span id="xp2">0</span></p>
+</div>
+
+<script>
+
+
+const tips=[
+"Win + V clipboard",
+"Win + Shift + S screenshot",
+"Ctrl + Shift + Esc task manager",
+"Win + D desktop",
+"Alt + Tab váltás",
+"Win + L lock",
+"Win + R run"
+];
+
+let fav=JSON.parse(localStorage.getItem('fav')||'[]');
+let xp=parseInt(localStorage.getItem('xp')||'0');
+
+function show(id){
+document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+document.getElementById(id).classList.add('active');
+updateStats();
+}
+
+function renderTips(){
+const val=search.value?.toLowerCase()||'';
+tipsList.innerHTML='';
+
+tips.filter(t=>t.toLowerCase().includes(val)).forEach(t=>{
+
+let html=t.replace(new RegExp(val,'gi'),m=>`<span class='highlight'>${m}</span>`);
+
+const div=document.createElement('div');
+div.className='card';
+div.innerHTML=`${html}
+<div class='heart' id='h${t}'>❤</div>
+<span class='badge' onclick='addFav("${t}",this)'>⭐</span>`;
+
+tipsList.appendChild(div);
+});
+}
+
+function addFav(t,el){
+if(!fav.includes(t)){
+fav.push(t);
+localStorage.setItem('fav',JSON.stringify(fav));
+
+// XP
+xp+=10;
+localStorage.setItem('xp',xp);
+
+// heart animation
+const heart=el.parentElement.querySelector('.heart');
+heart.classList.add('show');
+setTimeout(()=>heart.classList.remove('show'),600);
+}
+updateStats();
+}
+
+function updateStats(){
+const c=fav.length;
+document.getElementById('favCount').innerText=c;
+document.getElementById('favCount2').innerText=c;
+document.getElementById('xp').innerText=xp;
+document.getElementById('xp2').innerText=xp;
+}
+
+updateStats();
+renderTips();
+
+</script>
 
 </body>
 </html>
